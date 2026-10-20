@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Southwest Indiana SBDC — Industry Clusters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#CFB991; --rush:#DAAA00; --dust:#EBD99F; --aged:#8E6F3E;
+  --steel:#555960; --coolgray:#6F727B; --steam:#C4BFC0; --black:#000000;
+  --star:#DAAA00; --emerging:#8E6F3E; --mature:#555960; --transforming:#C4BFC0;
+}
+html[data-theme="light"]{
+  --page:#F7F5F1; --surface:#FFFFFF; --surface-2:#FBFAF7; --ink:#1C1C1C;
+  --muted:#555960; --line:#DEDAD2; --head-bg:#000000; --head-ink:#FFFFFF;
+  --panel:#000000; --panel-ink:#FFFFFF; --panel-muted:#C4BFC0; --track:#F7F5F1;
+  --btn-bg:#FFFFFF; --btn-ink:#000000; --btn-line:#000000; --up:#6B6021; --dn:#7A3E1D;
+  --map-bg:#FFFFFF; --map-ink:#1C1C1C; --map-muted:#6F727B; --map-grid:#DEDAD2; --map-accent:#8E6F3E;
+}
+html[data-theme="dark"]{
+  --page:#0D0E10; --surface:#17181B; --surface-2:#1D1F23; --ink:#F2F0EC;
+  --muted:#A8A6A2; --line:#33353B; --head-bg:#000000; --head-ink:#EBD99F;
+  --panel:#000000; --panel-ink:#FFFFFF; --panel-muted:#9D9795; --track:#0D0E10;
+  --btn-bg:#17181B; --btn-ink:#EBD99F; --btn-line:#8E6F3E; --up:#DDB945; --dn:#D9A08A;
+  --map-bg:#1D1F23; --map-ink:#F2F0EC; --map-muted:#A8A6A2; --map-grid:#33353B; --map-accent:#DDB945;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--ink);
+  font-family:"Source Sans 3",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+h2,th,.num,.stat-value,.chip,.badge,button,select{font-family:"Archivo Narrow","Arial Narrow",Helvetica,sans-serif}
+:focus-visible{outline:3px solid var(--rush);outline-offset:2px}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* controls */
+.controls{background:var(--surface);border-bottom:3px solid var(--gold)}
+.controls .wrap{display:grid;grid-template-columns:minmax(230px,1fr) auto minmax(180px,220px) auto;
+  gap:16px 26px;align-items:end;padding:16px 20px}
+.field label,.field .lbl{display:block;font-family:"Archivo Narrow",sans-serif;font-size:13px;
+  letter-spacing:.08em;color:var(--muted);margin-bottom:5px}
+select{width:100%;padding:9px 12px;border:1.5px solid var(--line);border-radius:2px;
+  background:var(--page);color:var(--ink);font:inherit;font-size:15px;font-weight:600}
+select:focus{border-color:var(--aged);background:var(--surface)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--surface);
+  color:var(--muted);padding:7px 12px;border-radius:2px;font-size:14px;font-weight:600;letter-spacing:.03em;cursor:pointer}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:var(--swatch)}
+.chip[aria-pressed="true"]{border-color:var(--rush);background:var(--black);color:#fff}
+.chip .n{color:var(--coolgray);font-weight:500}
+.chip[aria-pressed="true"] .n{color:var(--gold)}
+.slider input{width:100%;accent-color:var(--aged);margin:6px 0 0}
+.slider .val{font-weight:700;color:var(--ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1.5px solid var(--btn-line);background:var(--btn-bg);color:var(--btn-ink);padding:8px 14px;
+  border-radius:2px;font-size:14px;font-weight:600;letter-spacing:.04em;cursor:pointer;
+  display:inline-flex;align-items:center;gap:7px}
+.btn:hover{background:var(--aged);color:#fff;border-color:var(--aged)}
+.btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);margin:24px 0 0}
+.stat{background:var(--surface);padding:14px 16px;margin:0}
+.stat dt{font-family:"Archivo Narrow",sans-serif;font-size:12.5px;letter-spacing:.09em;color:var(--muted);margin:0}
+.stat dd{margin:0}
+.stat-value{display:block;font-size:26px;font-weight:700;line-height:1.15;margin-top:3px}
+.stat small{display:block;color:var(--coolgray);font-size:13px}
+
+/* quadrant map */
+.map{background:var(--map-bg);color:var(--map-ink);margin-top:24px;border-top:3px solid var(--gold);
+  padding:16px 20px 6px;position:relative}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--map-muted);margin-bottom:4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+svg{display:block;width:100%;height:auto}
+#plot{cursor:grab;overflow:hidden;touch-action:none}
+#plot.dragging{cursor:grabbing}
+.zoomctrl{position:absolute;bottom:14px;left:20px;display:flex;align-items:center;gap:6px;
+  background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:4px 6px;
+  box-shadow:0 2px 8px rgba(0,0,0,.18);z-index:6}
+.zoomctrl button{width:26px;height:26px;border:1px solid var(--line);background:var(--btn-bg);color:var(--btn-ink);
+  border-radius:2px;font-size:16px;font-weight:700;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.zoomctrl button:hover{background:var(--aged);color:#fff;border-color:var(--aged)}
+.zoomctrl button#zoomReset{width:auto;padding:0 9px;font-size:12px;font-weight:600;letter-spacing:.03em;
+  font-family:"Archivo Narrow",sans-serif}
+#zoomPct{font-size:12px;color:var(--muted);min-width:36px;text-align:center;font-family:"Archivo Narrow",sans-serif}
+.pt{cursor:pointer}
+.pt.dim{opacity:.12;cursor:default}
+.pt circle{stroke:var(--map-bg);stroke-width:1;transform-box:fill-box;transform-origin:center;
+  transition:transform .15s ease,stroke-width .15s ease,filter .15s ease,opacity .15s ease}
+.pt:hover circle,.pt.active circle{stroke:var(--map-ink);stroke-width:2.5;transform:scale(1.14);
+  filter:drop-shadow(0 3px 7px rgba(0,0,0,.28))}
+.axis-line{stroke:var(--map-grid);stroke-width:1}
+.center-line{stroke:var(--map-accent);stroke-width:1.25;stroke-dasharray:5 4}
+.qlabel{fill:var(--map-muted);font-family:"Archivo Narrow",sans-serif;font-size:13px;letter-spacing:.1em}
+.atitle{fill:var(--map-accent);font-family:"Archivo Narrow",sans-serif;font-size:13px}
+.atick{fill:var(--map-muted);font-size:11.5px;font-family:"Source Sans 3",sans-serif}
+.tooltip{position:absolute;pointer-events:none;background:var(--panel);color:var(--panel-ink);
+  padding:8px 12px;border-radius:2px;font-size:13px;line-height:1.45;box-shadow:0 8px 20px rgba(0,0,0,.3);
+  opacity:0;transform:translate(-50%,calc(-100% - 14px));transition:opacity .12s ease;z-index:10;
+  max-width:240px;white-space:nowrap}
+.tooltip.show{opacity:1}
+.tooltip b{display:block;font-family:"Archivo Narrow",sans-serif;font-size:13.5px;margin-bottom:4px}
+.tooltip .tt-row{display:flex;justify-content:space-between;gap:16px;color:var(--panel-muted)}
+.tooltip .tt-row span:last-child{color:var(--panel-ink);font-weight:600;margin-left:auto}
+.maphint{font-size:12px;color:var(--map-muted);margin:2px 0 8px}
+
+/* table */
+.tablecard{background:var(--surface);border:1px solid var(--line);border-top:3px solid var(--gold);margin:24px 0 44px}
+.scroll{overflow-x:auto}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:900px}
+thead th{position:sticky;top:0;z-index:5;background:var(--head-bg);color:var(--head-ink);text-align:left;
+  font-size:13.5px;font-weight:600;letter-spacing:.06em;padding:0;
+  box-shadow:inset 0 -2px 0 var(--gold)}
+thead th button{width:100%;background:none;border:0;color:inherit;font:inherit;letter-spacing:inherit;
+  padding:12px;text-align:inherit;cursor:pointer;display:flex;gap:6px;align-items:center;justify-content:inherit}
+thead th button:hover{color:var(--rush)}
+th.r,td.r{text-align:right}
+th.r button{justify-content:flex-end}
+.arrow{color:var(--rush);font-size:11px;visibility:hidden}
+th[aria-sort] .arrow{visibility:visible}
+tbody tr{border-bottom:1px solid var(--line)}
+tbody td{border-bottom:1px solid var(--line);padding:10px 12px;font-size:15px;vertical-align:middle}
+tbody tr:nth-child(odd) td{background:var(--surface-2)}
+tbody tr:hover td{background:var(--dust);color:#1C1C1C}
+td.name{font-weight:600;line-height:1.25}
+.num{font-size:15.5px;font-weight:600}
+.badge{display:inline-block;padding:3px 9px;border-radius:2px;font-size:13px;font-weight:600;
+  letter-spacing:.05em;border:1.5px solid var(--b);color:inherit}
+.lqcell{display:flex;align-items:center;justify-content:flex-end;gap:10px}
+.lqbar-wrap{position:relative;width:180px;height:16px;flex:none;background:var(--track)}
+.lqbar-wrap .mid{position:absolute;left:50%;top:-2px;bottom:-2px;border-left:1.5px solid var(--gold)}
+.lqbar-wrap i{position:absolute;top:2px;bottom:2px}
+.chg{font-weight:700}
+.chg.up{color:var(--up)}
+.chg.dn{color:var(--dn)}
+.chg .tri{font-size:11px}
+.empty{padding:44px 20px;text-align:center}
+.empty strong{display:block;font-family:"Archivo Narrow",sans-serif;font-size:19px;margin-bottom:4px}
+.empty p{margin:0 0 14px;color:var(--muted)}
+
+@media (max-width:980px){
+  .controls .wrap{grid-template-columns:1fr}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+@media (prefers-reduced-motion:no-preference){
+  .btn,.chip,tbody tr td,.pt circle{transition:background-color .15s ease,color .15s ease,opacity .15s ease}
+}
+@media print{.controls,.map{display:none}}
+</style>
+</head>
+<body>
+
+<section class="controls">
+  <div class="wrap">
+    <div class="field">
+      <label for="pick">Find a cluster</label>
+      <select id="pick"><option value="">All clusters</option></select>
+    </div>
+    <div class="field">
+      <span class="lbl" id="clsLabel">Competitiveness</span>
+      <div class="chips" id="chips" role="group" aria-labelledby="clsLabel"></div>
+    </div>
+    <div class="field slider">
+      <label for="minJobs">Minimum jobs <span class="val" id="minJobsVal">0</span></label>
+      <input id="minJobs" type="range" min="0" max="225000" step="500" value="0">
+    </div>
+    <div class="actions">
+      <button class="btn" id="theme" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" id="themeIcon" aria-hidden="true"></svg><span id="themeText">Dark mode</span>
+      </button>
+      <button class="btn" id="reset" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+        Reset dashboard
+      </button>
+    </div>
+  </div>
+</section>
+
+<main class="wrap">
+  <dl class="stats">
+    <div class="stat"><dt>CLUSTERS SHOWN</dt><dd class="stat-value" id="s1">—</dd></div>
+    <div class="stat"><dt>TOTAL JOBS</dt><dd class="stat-value" id="s2">—</dd><small id="s2b"></small></div>
+    <div class="stat"><dt>AVERAGE EARNINGS PER WORKER</dt><dd class="stat-value" id="s3">—</dd><small>Weighted by jobs</small></div>
+    <div class="stat"><dt>ESTABLISHMENTS</dt><dd class="stat-value" id="s4">—</dd><small id="s4b"></small></div>
+  </dl>
+
+  <section class="map">
+    <div class="legend" id="legend"></div>
+    <p class="maphint">Hover a bubble for details, click to focus that cluster in the table below. Drag to pan, scroll or use the buttons to zoom.</p>
+    <div class="zoomctrl" role="group" aria-label="Chart zoom controls">
+      <button type="button" id="zoomOut" aria-label="Zoom out">−</button>
+      <span id="zoomPct">100%</span>
+      <button type="button" id="zoomIn" aria-label="Zoom in">+</button>
+      <button type="button" id="zoomReset" aria-label="Reset zoom and pan">Reset view</button>
+    </div>
+    <svg id="plot" viewBox="0 0 980 450" role="img" aria-label="Employment concentration versus change in concentration by cluster"></svg>
+    <div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+  </section>
+
+  <section class="tablecard">
+    <div class="scroll">
+      <table>
+        <caption class="sr">Industry clusters, Southwest Indiana SBDC region, 2025</caption>
+        <thead><tr id="hrow"></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="empty" hidden>
+      <strong>No clusters match these filters</strong>
+      <p>Lower the jobs threshold or turn a competitiveness group back on.</p>
+      <button class="btn" type="button" onclick="document.getElementById('reset').click()">Reset dashboard</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const DATA = [{"name":"Agribusiness, Food Processing and Technology","jobs":9431.802521,"epw":69699.91941,"est":321.75,"lq20":1.417783,"lq25":1.40598,"chg":-0.008324969,"cls":"Mature"},{"name":"Arts, Entertainment, Recreation and Visitor","jobs":24499.59371,"epw":28604.82693,"est":1190.0,"lq20":0.916766,"lq25":0.915306,"chg":-0.001592555,"cls":"Transforming"},{"name":"Biomedical, Biotechnical and Healthcare","jobs":22095.52442,"epw":74243.52504,"est":437.0,"lq20":1.057868,"lq25":1.029674,"chg":-0.026651718,"cls":"Mature"},{"name":"Business, Financial Technology and Specialized Services","jobs":21823.64424,"epw":78479.93722,"est":1650.5,"lq20":0.529242,"lq25":0.56737,"chg":0.072042657,"cls":"Emerging"},{"name":"Chemicals and Chemical-based Products","jobs":8664.264129,"epw":96550.61936,"est":99.75,"lq20":3.570411,"lq25":4.024145,"chg":0.127081728,"cls":"Star"},{"name":"Defense and Security","jobs":3597.191682,"epw":96134.42259,"est":283.0,"lq20":0.395534,"lq25":0.443675,"chg":0.121711408,"cls":"Emerging"},{"name":"Education and Knowledge Creation","jobs":4067.320233,"epw":40856.5551,"est":176.25,"lq20":0.561922,"lq25":0.55254,"chg":-0.016696267,"cls":"Transforming"},{"name":"Energy (Fossil and Renewable)","jobs":13131.21216,"epw":103447.8892,"est":604.5,"lq20":1.412758,"lq25":1.271208,"chg":-0.100194088,"cls":"Mature"},{"name":"Forest and Wood Products","jobs":5646.93008,"epw":93249.8461,"est":328.25,"lq20":0.942484,"lq25":0.959145,"chg":0.017677754,"cls":"Emerging"},{"name":"Glass and Ceramics","jobs":496.6630384,"epw":66909.10534,"est":14.0,"lq20":2.642012,"lq25":1.61962,"chg":-0.386974775,"cls":"Mature"},{"name":"Apparel and Textiles","jobs":1477.427827,"epw":63971.7839,"est":130.75,"lq20":0.55608,"lq25":0.53501,"chg":-0.037890232,"cls":"Transforming"},{"name":"Information Technology and Telecommunications","jobs":6169.402009,"epw":103425.7505,"est":460.0,"lq20":0.506346,"lq25":0.570712,"chg":0.127118611,"cls":"Emerging"},{"name":"Mining and Quarrying (Except Fossil Fuels)","jobs":1119.351181,"epw":85293.27321,"est":51.0,"lq20":1.334506,"lq25":1.526649,"chg":0.143980619,"cls":"Star"},{"name":"Printed Products, Media Creation and Distribution","jobs":4162.652838,"epw":68186.70351,"est":246.5,"lq20":0.578362,"lq25":0.671597,"chg":0.161205266,"cls":"Emerging"},{"name":"Transportation and Logistics","jobs":13323.54365,"epw":54522.59521,"est":386.5,"lq20":0.933785,"lq25":0.940547,"chg":0.007241496,"cls":"Emerging"},{"name":"Computer and Electronic Product Manufacturing","jobs":186.5794081,"epw":93743.65179,"est":6.0,"lq20":0.205679,"lq25":0.162792,"chg":-0.208514238,"cls":"Transforming"},{"name":"Electrical Equipment, Appliance and Component","jobs":726.9404491,"epw":90974.07723,"est":5.25,"lq20":1.597842,"lq25":1.450559,"chg":-0.092176198,"cls":"Mature"},{"name":"Fabricated Metal Product Manufacturing","jobs":2525.474808,"epw":83623.64268,"est":88.25,"lq20":1.359712,"lq25":1.537188,"chg":0.130524699,"cls":"Star"},{"name":"Machinery Manufacturing","jobs":987.1971576,"epw":94424.5471,"est":40.0,"lq20":0.882313,"lq25":0.787074,"chg":-0.10794242,"cls":"Transforming"},{"name":"Primary Metal","jobs":2878.931627,"epw":122111.6737,"est":9.25,"lq20":5.300213,"lq25":7.124623,"chg":0.344214468,"cls":"Star"},{"name":"Transportation Equipment Manufacturing","jobs":13396.57687,"epw":110749.4988,"est":150.75,"lq20":3.038336,"lq25":3.080066,"chg":0.013734492,"cls":"Star"}];
+
+const CLASSES = [
+  {k:'Star',         hex:'#DAAA00', note:'Concentrated and growing'},
+  {k:'Emerging',     hex:'#8E6F3E', note:'Below national share, growing'},
+  {k:'Mature',       hex:'#555960', note:'Concentrated, losing share'},
+  {k:'Transforming', hex:'#C4BFC0', note:'Below national share, losing share'}
+];
+const HEX = Object.fromEntries(CLASSES.map(c=>[c.k,c.hex]));
+
+const COLS = [
+  {k:'name', t:'Industry cluster', r:false},
+  {k:'jobs', t:'2025 jobs', r:true},
+  {k:'epw',  t:'Earnings per worker', r:true},
+  {k:'est',  t:'Establishments', r:true},
+  {k:'lq25', t:'Employment concentration', r:true},
+  {k:'chg',  t:'Change since 2020', r:true},
+  {k:'cls',  t:'Competitiveness', r:false}
+];
+
+const state = {pick:'', cls:new Set(CLASSES.map(c=>c.k)), min:0, sort:'lq25', dir:-1, active:null};
+
+const n0  = v => Math.round(v).toLocaleString('en-US');
+const usd = v => '$'+Math.round(v).toLocaleString('en-US');
+const pct = v => (v>=0?'+':'\u2212')+Math.abs(v*100).toFixed(1)+'%';
+const lq  = v => v.toFixed(2);
+
+const TOTALS = {jobs:DATA.reduce((a,d)=>a+d.jobs,0), est:DATA.reduce((a,d)=>a+d.est,0)};
+
+/* dropdown */
+const pick = document.getElementById('pick');
+DATA.slice().sort((a,b)=>a.name.localeCompare(b.name)).forEach(d=>{
+  const o=document.createElement('option'); o.value=d.name; o.textContent=d.name; pick.appendChild(o);
+});
+pick.onchange = ()=>{ state.pick=pick.value; render(); };
+
+/* chips */
+const chips = document.getElementById('chips');
+CLASSES.forEach(c=>{
+  const b=document.createElement('button');
+  b.type='button'; b.className='chip'; b.setAttribute('aria-pressed','true');
+  b.style.setProperty('--swatch', c.hex); b.title=c.note;
+  b.innerHTML=`<span class="dot"></span>${c.k} <span class="n">${DATA.filter(d=>d.cls===c.k).length}</span>`;
+  b.onclick=()=>{
+    state.cls.has(c.k) ? state.cls.delete(c.k) : state.cls.add(c.k);
+    if(!state.cls.size) state.cls=new Set(CLASSES.map(x=>x.k));
+    [...chips.children].forEach((el,i)=>el.setAttribute('aria-pressed', state.cls.has(CLASSES[i].k)));
+    render();
+  };
+  chips.appendChild(b);
+});
+document.getElementById('legend').innerHTML =
+  CLASSES.map(c=>`<span><i style="--c:${c.hex}"></i>${c.k} — ${c.note}</span>`).join('');
+
+/* slider */
+const mj = document.getElementById('minJobs');
+mj.oninput = ()=>{
+  state.min=+mj.value;
+  document.getElementById('minJobsVal').textContent = n0(state.min);
+  render();
+};
+
+/* theme */
+const SUN='<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/>';
+const MOON='<path d="M20 14.5A8.2 8.2 0 0 1 9.5 4 8.3 8.3 0 1 0 20 14.5z"/>';
+const themeBtn=document.getElementById('theme');
+function setTheme(t){
+  document.documentElement.dataset.theme=t;
+  themeBtn.setAttribute('aria-pressed', t==='dark');
+  document.getElementById('themeIcon').innerHTML = t==='dark' ? SUN : MOON;
+  document.getElementById('themeText').textContent = t==='dark' ? 'Light mode' : 'Dark mode';
+  plot(visible());
+}
+themeBtn.onclick = ()=> setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+/* reset */
+document.getElementById('reset').onclick = ()=>{
+  state.pick=''; pick.value='';
+  state.min=0; mj.value=0; document.getElementById('minJobsVal').textContent='0';
+  state.cls=new Set(CLASSES.map(c=>c.k));
+  [...chips.children].forEach(el=>el.setAttribute('aria-pressed','true'));
+  state.sort='lq25'; state.dir=-1; state.active=null;
+  resetView();
+  render();
+};
+
+/* headers */
+const hrow=document.getElementById('hrow');
+COLS.forEach(c=>{
+  const th=document.createElement('th');
+  if(c.r) th.className='r';
+  th.scope='col';
+  th.innerHTML=`<button type="button">${c.t}<span class="arrow"></span></button>`;
+  th.querySelector('button').onclick=()=>{
+    if(state.sort===c.k) state.dir=-state.dir;
+    else { state.sort=c.k; state.dir=(c.k==='name'||c.k==='cls')?1:-1; }
+    render();
+  };
+  hrow.appendChild(th);
+});
+
+/* data helpers */
+function visible(){
+  return DATA.filter(d => state.cls.has(d.cls) && d.jobs>=state.min && (!state.pick || d.name===state.pick));
+}
+function sorted(rows){
+  const k=state.sort, dir=state.dir;
+  return rows.slice().sort((a,b)=>
+    (k==='name'||k==='cls') ? String(a[k]).localeCompare(String(b[k]))*dir : (a[k]-b[k])*dir);
+}
+
+const LQMAX=2.2;
+function lqBar(v){
+  const half=90, scale=half/(LQMAX-1), w=Math.min(half,Math.abs(v-1)*scale);
+  const style = v>=1 ? `left:50%;width:${w}px;background:var(--rush)`
+                     : `right:50%;width:${w}px;background:var(--steam)`;
+  return `<span class="lqbar-wrap"><span class="mid"></span><i style="${style}"></i></span>`;
+}
+
+function render(){
+  const rows=sorted(visible());
+  const tb=document.getElementById('tbody');
+  tb.innerHTML='';
+  document.getElementById('empty').hidden = rows.length>0;
+
+  [...hrow.children].forEach((th,i)=>{
+    if(COLS[i].k===state.sort){
+      th.setAttribute('aria-sort', state.dir===1?'ascending':'descending');
+      th.querySelector('.arrow').textContent = state.dir===1?'\u25B2':'\u25BC';
+    } else th.removeAttribute('aria-sort');
+  });
+
+  rows.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.dataset.name=d.name;
+    tr.innerHTML=`
+      <td class="name">${d.name}</td>
+      <td class="r num">${n0(d.jobs)}</td>
+      <td class="r num">${usd(d.epw)}</td>
+      <td class="r num">${n0(d.est)}</td>
+      <td class="r"><span class="lqcell"><span class="num">${lq(d.lq25)}</span>${lqBar(d.lq25)}</span></td>
+      <td class="r chg ${d.chg>=0?'up':'dn'}"><span class="tri">${d.chg>=0?'\u25B2':'\u25BC'}</span> ${pct(d.chg)}</td>
+      <td><span class="badge" style="--b:${HEX[d.cls]}">${d.cls}</span></td>`;
+    tr.onmouseenter=()=>highlight(d.name);
+    tr.onmouseleave=()=>highlight(null);
+    tb.appendChild(tr);
+  });
+
+  stats(rows);
+  plot(visible());
+}
+
+function stats(rows){
+  const jobs=rows.reduce((a,d)=>a+d.jobs,0);
+  const est=rows.reduce((a,d)=>a+d.est,0);
+  const pay=rows.reduce((a,d)=>a+d.jobs*d.epw,0);
+  document.getElementById('s1').textContent = rows.length+' of '+DATA.length;
+  document.getElementById('s2').textContent = n0(jobs);
+  document.getElementById('s2b').textContent = (jobs/TOTALS.jobs*100).toFixed(0)+'% of regional total';
+  document.getElementById('s3').textContent = jobs ? usd(pay/jobs) : '—';
+  document.getElementById('s4').textContent = n0(est);
+  document.getElementById('s4b').textContent = (est/TOTALS.est*100).toFixed(0)+'% of regional total';
+}
+
+/* quadrant plot */
+const NS='http://www.w3.org/2000/svg';
+const mk=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e;};
+function plot(rows){
+  const svg=document.getElementById('plot');
+  svg.innerHTML='';
+  const W=980,H=450,L=64,R=24,T=26,B=52;
+  const X=v=>L+(v+0.45)/0.65*(W-L-R);
+  const Y=v=>T+(2.2-v)/2.2*(H-T-B);
+  const rad=j=>5+Math.sqrt(j)/9;
+  const g=mk('g',{id:'plotg'}); svg.appendChild(g);
+
+  [0,0.5,1.0,1.5,2.0].forEach(v=>{
+    g.appendChild(mk('line',{x1:L,x2:W-R,y1:Y(v),y2:Y(v),class:v===1?'center-line':'axis-line',opacity:v===1?1:.35}));
+    const t=mk('text',{x:L-10,y:Y(v)+4,class:'atick','text-anchor':'end'}); t.textContent=v.toFixed(1); g.appendChild(t);
+  });
+  [-0.4,-0.2,0,0.2].forEach(v=>{
+    g.appendChild(mk('line',{x1:X(v),x2:X(v),y1:T,y2:H-B,class:v===0?'center-line':'axis-line',opacity:v===0?1:.35}));
+    const t=mk('text',{x:X(v),y:H-B+18,class:'atick','text-anchor':'middle'}); t.textContent=(v*100).toFixed(0)+'%'; g.appendChild(t);
+  });
+  const xt=mk('text',{x:(L+W-R)/2,y:H-10,class:'atitle','text-anchor':'middle'});
+  xt.textContent='Change in Employment Concentration, 2020-2025'; g.appendChild(xt);
+  const yt=mk('text',{x:16,y:(T+H-B)/2,class:'atitle','text-anchor':'middle',transform:`rotate(-90 16 ${(T+H-B)/2})`});
+  yt.textContent='2025 Employment Concentration (1.00 = national share)'; g.appendChild(yt);
+
+  [['MATURE',L+12,T+18,'start'],['STAR',W-R-12,T+18,'end'],
+   ['TRANSFORMING',L+12,H-B-12,'start'],['EMERGING',W-R-12,H-B-12,'end']].forEach(([txt,x,y,a])=>{
+    const t=mk('text',{x,y,class:'qlabel','text-anchor':a}); t.textContent=txt; g.appendChild(t);
+  });
+
+  const shown=new Set(rows.map(r=>r.name));
+  DATA.slice().sort((a,b)=>b.jobs-a.jobs).forEach(d=>{
+    const on=shown.has(d.name);
+    const gp=mk('g',{class:'pt'+(on?'':' dim'),'data-name':d.name});
+    gp.appendChild(mk('circle',{cx:X(d.chg),cy:Y(d.lq25),r:rad(d.jobs),fill:HEX[d.cls],'fill-opacity':.9}));
+    if(on){
+      gp.onmouseenter=()=>{ highlight(d.name); showTip(d); };
+      gp.onmousemove=(e)=>moveTip(e);
+      gp.onmouseleave=()=>{ highlight(null); hideTip(); };
+      gp.onclick=()=>selectPoint(d.name);
+    }
+    g.appendChild(gp);
+  });
+  applyTransform();
+}
+
+function highlight(name){
+  document.querySelectorAll('.pt').forEach(p=>p.classList.toggle('active', !!name && p.dataset.name===name));
+}
+
+function showTip(d){
+  const tip=document.getElementById('tooltip');
+  tip.innerHTML = `<b>${d.name}</b>
+    <div class="tt-row"><span>2025 jobs</span><span>${n0(d.jobs)}</span></div>
+    <div class="tt-row"><span>Employment Concentration</span><span>${lq(d.lq25)}</span></div>
+    <div class="tt-row"><span>Change since 2020</span><span>${pct(d.chg)}</span></div>
+    <div class="tt-row"><span>Competitiveness</span><span>${d.cls}</span></div>`;
+  tip.classList.add('show');
+}
+function moveTip(e){
+  const tip=document.getElementById('tooltip');
+  const rect=document.querySelector('.map').getBoundingClientRect();
+  let x=e.clientX-rect.left, y=e.clientY-rect.top;
+  x=Math.max(60,Math.min(rect.width-60,x));
+  tip.style.left=x+'px'; tip.style.top=y+'px';
+}
+function hideTip(){ document.getElementById('tooltip').classList.remove('show'); }
+
+function selectPoint(name){
+  state.pick = (state.pick===name) ? '' : name;
+  pick.value = state.pick;
+  render();
+}
+
+/* zoom + pan */
+const VBW=980, VBH=450, ZMIN=0.6, ZMAX=4;
+const view = {k:1, x:0, y:0};
+const plotSvg = document.getElementById('plot');
+
+function applyTransform(){
+  const g=document.getElementById('plotg');
+  if(g) g.setAttribute('transform', `translate(${view.x} ${view.y}) scale(${view.k})`);
+  document.getElementById('zoomPct').textContent = Math.round(view.k*100)+'%';
+}
+function zoomBy(factor, cx=VBW/2, cy=VBH/2){
+  const nk=Math.min(ZMAX,Math.max(ZMIN, view.k*factor));
+  const ratio=nk/view.k;
+  view.x = cx - ratio*(cx-view.x);
+  view.y = cy - ratio*(cy-view.y);
+  view.k = nk;
+  applyTransform();
+}
+function resetView(){ view.k=1; view.x=0; view.y=0; applyTransform(); }
+
+document.getElementById('zoomIn').onclick = ()=> zoomBy(1.3);
+document.getElementById('zoomOut').onclick = ()=> zoomBy(1/1.3);
+document.getElementById('zoomReset').onclick = resetView;
+
+/* wheel zoom, centered on cursor */
+plotSvg.addEventListener('wheel', (e)=>{
+  e.preventDefault();
+  const rect=plotSvg.getBoundingClientRect();
+  const cx=(e.clientX-rect.left)*(VBW/rect.width);
+  const cy=(e.clientY-rect.top)*(VBH/rect.height);
+  zoomBy(e.deltaY<0 ? 1.15 : 1/1.15, cx, cy);
+}, {passive:false});
+
+/* drag to pan */
+let dragging=false, dragFrom=null, panFrom=null;
+plotSvg.addEventListener('pointerdown', (e)=>{
+  dragging=true; dragFrom={x:e.clientX,y:e.clientY}; panFrom={x:view.x,y:view.y};
+  plotSvg.setPointerCapture(e.pointerId);
+  plotSvg.classList.add('dragging');
+});
+plotSvg.addEventListener('pointermove', (e)=>{
+  if(!dragging) return;
+  const rect=plotSvg.getBoundingClientRect();
+  const dx=(e.clientX-dragFrom.x)*(VBW/rect.width);
+  const dy=(e.clientY-dragFrom.y)*(VBH/rect.height);
+  view.x=panFrom.x+dx; view.y=panFrom.y+dy;
+  applyTransform();
+});
+function endDrag(){ dragging=false; plotSvg.classList.remove('dragging'); }
+plotSvg.addEventListener('pointerup', endDrag);
+plotSvg.addEventListener('pointerleave', endDrag);
+plotSvg.addEventListener('pointercancel', endDrag);
+
+setTheme('light');
+render();
+</script>
+</body>
+</html>
